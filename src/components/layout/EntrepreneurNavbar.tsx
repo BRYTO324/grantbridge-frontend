@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Menu, X, LogOut, User, Bell } from "lucide-react";
+import { Menu, X, LogOut, Bell } from "lucide-react";
 import { useState } from "react";
 import { useAppStore } from "../../lib/store";
 

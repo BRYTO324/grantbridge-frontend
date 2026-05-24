@@ -15,7 +15,6 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
-  const [resetToken, setResetToken] = useState("");
 
   const requestReset = useRequestPasswordReset();
 
@@ -30,8 +29,7 @@ export default function ForgotPasswordPage() {
     }
 
     requestReset.mutate(email, {
-      onSuccess: (data) => {
-        setResetToken(data.resetToken || "");
+      onSuccess: () => {
         setSent(true);
       },
       onError: (err) => {
@@ -43,9 +41,8 @@ export default function ForgotPasswordPage() {
   };
 
   const handleContinueToReset = () => {
-    // In a real app, the user would click the link in their email
-    // For demo purposes, we'll navigate with the token in the URL
-    navigate(`/reset-password/${role}?token=${resetToken}`);
+    // User clicks the link in their email — this button is for reference only
+    navigate(`/reset-password/${role}`);
   };
 
   if (sent) {
