@@ -259,6 +259,13 @@ export default function SignupPage() {
                   </div>
                 )}
 
+                {isSigningUp && (
+                  <div className="bg-brand-50 border border-brand-100 rounded-xl p-3 text-sm text-brand-700 flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-brand-500 border-t-transparent rounded-full animate-spin shrink-0" />
+                    Creating your account... (first request may take up to 30s)
+                  </div>
+                )}
+
                 <Button
                   variant="primary"
                   size="lg"

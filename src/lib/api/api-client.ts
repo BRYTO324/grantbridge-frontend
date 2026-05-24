@@ -3,6 +3,7 @@
  * - Reads VITE_API_BASE_URL (defaults to /api/v1)
  * - Injects Authorization: Bearer <token> from Zustand persisted localStorage
  * - Handles 401 by clearing auth state and redirecting to login
+ * - 30s timeout to handle Render free tier cold starts
  */
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api/v1";
@@ -53,23 +54,43 @@ export async function fetchApi<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(url, { ...options, headers });
+  // 30 second timeout — handles Render free tier cold starts (can take 20-30s)
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-  if (response.status === 401) {
-    handleUnauthorized();
-    throw new Error("Session expired. Please log in again.");
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers,
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (response.status === 401) {
+      handleUnauthorized();
+      throw new Error("Session expired. Please log in again.");
+    }
+
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!response.ok) {
+      const message =
+        data?.error || data?.message || data?.detail || response.statusText;
+      throw new Error(message);
+    }
+
+    return data as T;
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new Error(
+        "Server is waking up — please wait a moment and try again.",
+      );
+    }
+    throw err;
   }
-
-  const text = await response.text();
-  const data = text ? JSON.parse(text) : null;
-
-  if (!response.ok) {
-    const message =
-      data?.error || data?.message || data?.detail || response.statusText;
-    throw new Error(message);
-  }
-
-  return data as T;
 }
 
 export const API_BASE = API_BASE_URL;
