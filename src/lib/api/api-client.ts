@@ -1,12 +1,14 @@
 /**
  * Base API client.
- * - Reads VITE_API_BASE_URL (defaults to /api/v1)
+ * - Reads VITE_API_BASE_URL — MUST be set in Vercel environment variables
+ * - Falls back to the production Render URL if env var is missing
  * - Injects Authorization: Bearer <token> from Zustand persisted localStorage
- * - Handles 401 by clearing auth state and redirecting to login
  * - 30s timeout to handle Render free tier cold starts
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api/v1";
+// Hardcoded production fallback — ensures the app works even if Vercel env var is missing
+const PRODUCTION_API = "https://grantbridge-backend-2.onrender.com/api/v1";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || PRODUCTION_API;
 
 /** Read the JWT access token from Zustand's persisted localStorage entry. */
 function getAccessToken(): string | null {
@@ -54,7 +56,7 @@ export async function fetchApi<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  // 30 second timeout — handles Render free tier cold starts (can take 20-30s)
+  // 30 second timeout — handles Render free tier cold starts
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000);
 

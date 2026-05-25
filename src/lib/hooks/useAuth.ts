@@ -124,9 +124,11 @@ export function useUpdateProfile() {
       });
     },
     onSuccess: (updatedUser) => {
-      // Sync FULL backend response to store — this updates avatarUrl, fullName, etc.
+      // Sync FULL backend response to store immediately
       updateUser(updatedUser);
       queryClient.setQueryData(["currentUser"], updatedUser);
+      // Force re-fetch to ensure all components see the latest data
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
     },
   });
 }

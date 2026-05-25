@@ -6,6 +6,9 @@ export function usePitches() {
   return useQuery({
     queryKey: ['pitches'],
     queryFn: () => api.getPitches(),
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -16,6 +19,8 @@ export function usePitch(id: string) {
     queryKey: ['pitch', id],
     queryFn: () => api.getPitchById(id),
     enabled: !!id,
+    staleTime: 0,
+    refetchOnMount: true,
     initialData: () =>
       queryClient.getQueryData<PitchCard[]>(['pitches'])?.find((pitch) => pitch.id === id),
   });
@@ -26,6 +31,9 @@ export function useUserPitches(userId: string) {
     queryKey: ['userPitches', userId],
     queryFn: () => api.getUserPitches(userId),
     enabled: !!userId,
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 }
 
