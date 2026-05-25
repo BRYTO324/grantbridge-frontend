@@ -93,6 +93,7 @@ interface AppState {
   logout: () => void;
   completeOnboarding: () => void;
   updateUser: (updates: Partial<User>) => void;
+  setUser: (user: User) => void;
   setTokens: (tokens: { access: string; refresh: string }) => void;
 }
 
@@ -133,6 +134,10 @@ export const useAppStore = create<AppState>()(
         set((state) => ({
           user: state.user ? { ...state.user, ...updates } : null,
         })),
+
+      // Full replace — use this when syncing from /auth/me/ to avoid stale fields
+      setUser: (user) =>
+        set({ user }),
 
       setTokens: (tokens) =>
         set({ accessToken: tokens.access, refreshToken: tokens.refresh }),

@@ -93,16 +93,17 @@ export function useAuth() {
  * Called on app load to ensure store is always fresh.
  */
 export function useCurrentUser() {
-  const { updateUser, isAuthenticated } = useAppStore();
+  const { setUser, isAuthenticated } = useAppStore();
   return useQuery({
     queryKey: ["currentUser"],
     queryFn: async () => {
       const user = await fetchApi<User>("/auth/me/");
-      updateUser(user);
+      setUser(user); // full replace — no stale fields from old store
       return user;
     },
     enabled: isAuthenticated,
-    staleTime: 30_000, // re-fetch after 30s
+    staleTime: 0, // always re-fetch on mount so profile is always fresh
+    refetchOnMount: true,
     refetchOnWindowFocus: true,
   });
 }
@@ -113,7 +114,7 @@ export function useCurrentUser() {
  */
 export function useUpdateProfile() {
   const queryClient = useQueryClient();
-  const { updateUser } = useAppStore();
+  const { setUser } = useAppStore();
 
   return useMutation({
     mutationFn: (data: FormData | Record<string, unknown>) => {
@@ -124,10 +125,9 @@ export function useUpdateProfile() {
       });
     },
     onSuccess: (updatedUser) => {
-      // Sync FULL backend response to store immediately
-      updateUser(updatedUser);
+      // Full replace — ensures avatarUrl and all fields are fresh
+      setUser(updatedUser);
       queryClient.setQueryData(["currentUser"], updatedUser);
-      // Force re-fetch to ensure all components see the latest data
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
     },
   });

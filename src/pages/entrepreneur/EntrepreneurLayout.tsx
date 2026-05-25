@@ -1,23 +1,14 @@
 import { Outlet } from 'react-router-dom';
 import EntrepreneurSidebar from '../../components/layout/EntrepreneurSidebar';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Menu } from 'lucide-react';
-import { useAppStore } from '../../lib/store';
-import { fetchApi } from '../../lib/api/api-client';
-import type { User } from '../../lib/store';
+import { useCurrentUser } from '../../lib/hooks/useAuth';
 
 export default function EntrepreneurLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { isAuthenticated, updateUser } = useAppStore();
 
-  // Sync fresh user data from backend every time the layout mounts
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchApi<User>('/auth/me/')
-        .then((freshUser) => updateUser(freshUser))
-        .catch(() => {});
-    }
-  }, [isAuthenticated, updateUser]);
+  // Always fetch fresh user data from backend on every mount/navigation
+  useCurrentUser();
 
   return (
     <div className="min-h-screen bg-[#f7f8fa] flex">
