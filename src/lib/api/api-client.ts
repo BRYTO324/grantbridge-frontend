@@ -75,6 +75,15 @@ export async function fetchApi<T>(
     }
 
     const text = await response.text();
+
+    // Check if response is HTML (server error page) instead of JSON
+    if (text.trim().startsWith("<!") || text.trim().startsWith("<html")) {
+      if (response.status >= 500) {
+        throw new Error("Server is temporarily unavailable. Please try again in a moment.");
+      }
+      throw new Error("Unexpected server response. Please try again.");
+    }
+
     const data = text ? JSON.parse(text) : null;
 
     if (!response.ok) {
