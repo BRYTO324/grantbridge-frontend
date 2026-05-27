@@ -469,7 +469,11 @@ export default function ProjectDetailPage() {
                   {paymentError && (
                     <div className="flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl p-3 mb-4">
                       <AlertCircle size={16} className="text-red-500 mt-0.5 shrink-0" />
-                      <p className="text-sm text-red-600">{paymentError}</p>
+                      <p className="text-sm text-red-600">
+                        {paymentError.includes("secret key") || paymentError.includes("Authorization")
+                          ? "Payment service is temporarily unavailable. Please try again shortly."
+                          : paymentError}
+                      </p>
                     </div>
                   )}
 
