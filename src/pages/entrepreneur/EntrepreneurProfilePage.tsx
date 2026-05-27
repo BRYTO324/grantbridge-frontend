@@ -31,11 +31,15 @@ export default function EntrepreneurProfilePage() {
     location: "",
     website: "",
     bio: "",
+    bankName: "",
+    bankAccountNumber: "",
+    bankAccountName: "",
   });
 
   // Keep form in sync with store (handles post-save updates)
   useEffect(() => {
     if (user) {
+      const u = user as unknown as Record<string, unknown>;
       setFormData({
         fullName: user.fullName || "",
         phone: user.phone || "",
@@ -43,6 +47,9 @@ export default function EntrepreneurProfilePage() {
         location: user.location || "",
         website: user.website || "",
         bio: user.bio || "",
+        bankName: (u.bankName as string) || "",
+        bankAccountNumber: (u.bankAccountNumber as string) || "",
+        bankAccountName: (u.bankAccountName as string) || "",
       });
     }
   }, [user]);
@@ -80,7 +87,6 @@ export default function EntrepreneurProfilePage() {
   const handleSave = () => {
     setSaveError("");
 
-    // Clean website — strip if it's not a valid URL
     let cleanWebsite = formData.website.trim();
     if (cleanWebsite && !cleanWebsite.startsWith("http://") && !cleanWebsite.startsWith("https://")) {
       cleanWebsite = `https://${cleanWebsite}`;
@@ -94,6 +100,9 @@ export default function EntrepreneurProfilePage() {
         location: formData.location,
         website: cleanWebsite,
         bio: formData.bio,
+        bankName: formData.bankName,
+        bankAccountNumber: formData.bankAccountNumber,
+        bankAccountName: formData.bankAccountName,
         profileCompleted: true,
       },
       {
@@ -524,6 +533,67 @@ export default function EntrepreneurProfilePage() {
                       )}
                     </button>
                   </div>
+                </div>
+              )}
+            </div>
+
+            {/* Bank Account Details */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-base font-semibold text-slate-800 font-[Outfit]">Bank Account</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">For receiving funding payments</p>
+                </div>
+                <Briefcase size={18} className="text-slate-400" />
+              </div>
+              <div className="grid sm:grid-cols-2 gap-5">
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-medium text-slate-600 mb-2">Bank Name</label>
+                  {isEditing ? (
+                    <input type="text" value={formData.bankName}
+                      onChange={(e) => setFormData({ ...formData, bankName: e.target.value })}
+                      placeholder="e.g. Access Bank, GTBank, Zenith Bank"
+                      className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100" />
+                  ) : (
+                    <p className="px-4 py-2.5 bg-slate-50 rounded-xl text-sm text-slate-800">
+                      {formData.bankName || <span className="text-slate-400 italic">Not set</span>}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-2">Account Number</label>
+                  {isEditing ? (
+                    <input type="text" value={formData.bankAccountNumber}
+                      onChange={(e) => setFormData({ ...formData, bankAccountNumber: e.target.value })}
+                      placeholder="0123456789"
+                      maxLength={10}
+                      className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100" />
+                  ) : (
+                    <p className="px-4 py-2.5 bg-slate-50 rounded-xl text-sm text-slate-800">
+                      {formData.bankAccountNumber || <span className="text-slate-400 italic">Not set</span>}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-2">Account Name</label>
+                  {isEditing ? (
+                    <input type="text" value={formData.bankAccountName}
+                      onChange={(e) => setFormData({ ...formData, bankAccountName: e.target.value })}
+                      placeholder="As it appears on your bank account"
+                      className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100" />
+                  ) : (
+                    <p className="px-4 py-2.5 bg-slate-50 rounded-xl text-sm text-slate-800">
+                      {formData.bankAccountName || <span className="text-slate-400 italic">Not set</span>}
+                    </p>
+                  )}
+                </div>
+              </div>
+              {!isEditing && !formData.bankAccountNumber && (
+                <div className="mt-4 bg-amber-50 border border-amber-100 rounded-xl p-3">
+                  <p className="text-xs text-amber-700">
+                    Add your bank account details so funders can send payments directly to you.
+                    Click <strong>Edit Profile</strong> to add them.
+                  </p>
                 </div>
               )}
             </div>
